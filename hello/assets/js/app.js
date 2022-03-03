@@ -29,6 +29,17 @@ import topbar from "../vendor/topbar"
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
 
+let channel = Socket.channel("room:lobby", {})
+let chatInput = document.querySelector("#chat-input")
+let messagesContainer = document.querySelector("#messages")
+
+chatInput.addEventListener("keypress", event => {
+    if(event.keyCode == 13){
+        channel.push("new_msg", {body: chatInput.value})
+        chatInput.value = ''
+    }
+})
+
 // Show progress bar on live navigation and form submits
 topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", info => topbar.show())
@@ -43,3 +54,4 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+export default Socket
